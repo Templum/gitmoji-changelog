@@ -1,0 +1,50 @@
+{
+    // General Settings
+    "breadcrumbs.enabled": true,
+    "files.autoSave": "afterDelay",
+    "editor.minimap.enabled": true,
+    "git.confirmSync": false,
+    "git.autofetch": true,
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "node_modules": false
+    },
+    "scm.defaultViewMode": "tree",
+    // Editor theme and icons
+    "workbench.iconTheme": "material-icon-theme",
+    "workbench.colorTheme": "Material Theme Darker High Contrast",
+    // ESLint
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    },
+    "eslint.validate": [
+        "typescript"
+    ],
+    "eslint.experimental.useFlatConfig": true,
+    "eslint.options": {
+        "overrideConfigFile": "eslint.config.js"
+    },
+    // Typescript
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "typescript.referencesCodeLens.enabled": true,
+    "typescript.implementationsCodeLens.enabled": true,
+    "typescript.suggest.enabled": true,
+    "[typescript]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+    },
+    // Todo-Tree
+    "todo-tree.filtering.includeHiddenFiles": false,
+    "todo-tree.tree.autoRefresh": true,
+    "todo-tree.general.tags": [
+        "BUG",
+        "HACK",
+        "FIXME",
+        "TODO",
+        "IDEA",
+    ],
+    "todo-tree.general.statusBar": "current file",
+}
