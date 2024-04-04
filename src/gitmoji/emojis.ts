@@ -12,6 +12,10 @@ export function getEmojiName(emojiOrCode: string): string {
 
 export function getEmoji(emojiName: string): string {
     for (const current of gitmojis) {
+        if (emojiName.includes('_') && current.name === emojiName.replaceAll('_', '-')) {
+            return current.emoji;
+        }
+
         if (current.name === emojiName) {
             return current.emoji;
         }
