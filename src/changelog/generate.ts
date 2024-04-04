@@ -42,7 +42,7 @@ function getCurrentDate(): string {
 }
 
 function templateChangelog(changelog: Map<ChangeType, Entry[]>, version: string): string {
-    let template = `<a name="2.3.0"></a>\n## ${version} (${getCurrentDate()})\n\n`;
+    let template = `<a name="${version}"></a>\n## ${version} (${getCurrentDate()})\n\n`;
 
     for (const [type, commits] of changelog.entries()) {
         if (commits.length === 0) {
