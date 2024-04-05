@@ -67,7 +67,7 @@ export async function getWholeHistory(workDir: string): Promise<GitCommit[]> {
 export async function getHistoryFrom(workDir: string, lastTag: string): Promise<GitCommit[]> {
     const history: GitCommit[] = [];
 
-    const git = spawn('git', ['log', lastTag, '--pretty=format:"%H|||%h|||%s|||%an|||%ae"'], {
+    const git = spawn('git', ['log', `${lastTag}..HEAD`, '--pretty=format:"%H|||%h|||%s|||%an|||%ae"'], {
         cwd: workDir === '' ? cwd() : workDir,
         shell: true,
         timeout: 20 * 1000,
