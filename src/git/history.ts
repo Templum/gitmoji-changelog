@@ -31,8 +31,8 @@ export async function getWholeHistory(workDir: string): Promise<GitCommit[]> {
 
                 const historyEntry: GitCommit = {
                     hash: {
-                        long: long.startsWith('\n') ? long.replace('\n', '') : long,
-                        short: short.startsWith('\n') ? short.replace('\n', '') : short,
+                        long: long.startsWith('"') ? long.replace('"', '') : long,
+                        short: short.startsWith('"') ? short.replace('"', '') : short,
                     },
                     message,
                     author: {
