@@ -26509,7 +26509,7 @@ async function getWholeHistory(workDir) {
 }
 async function getHistoryFrom(workDir, lastTag) {
     const history = [];
-    const git = (0,external_node_child_process_namespaceObject.spawn)('git', ['log', lastTag, '--pretty=format:"%H|||%h|||%s|||%an|||%ae"'], {
+    const git = (0,external_node_child_process_namespaceObject.spawn)('git', ['log', `${lastTag}..HEAD`, '--pretty=format:"%H|||%h|||%s|||%an|||%ae"'], {
         cwd: workDir === '' ? (0,external_node_process_namespaceObject.cwd)() : workDir,
         shell: true,
         timeout: 20 * 1000,
@@ -27509,15 +27509,20 @@ async function main() {
             throw new Error(`Was not able to discover a tag that is linked to ${version}, hence can't extend CHANGELOG`);
         }
         const history = await getHistoryFrom(path, relatedTag);
+        if (history.length === 0) {
+            (0,core.info)(`Found no changes in history from ${relatedTag} -> HEAD`);
+            (0,core.setOutput)('for-version', 'No Changes');
+            return;
+        }
         const addition = generateChangelog(history, currentVersion);
         await writeChangelog(path, addition, false);
+        (0,core.setOutput)('for-version', currentVersion);
+        return;
     }
-    else {
-        (0,core.info)('No Changelog present, will generate initial version');
-        const history = await getWholeHistory(path);
-        const initial = generateChangelog(history, currentVersion);
-        await writeChangelog(path, initial, true);
-    }
+    (0,core.info)('No Changelog present, will generate initial version');
+    const history = await getWholeHistory(path);
+    const initial = generateChangelog(history, currentVersion);
+    await writeChangelog(path, initial, true);
     (0,core.setOutput)('for-version', currentVersion);
 }
 main()
