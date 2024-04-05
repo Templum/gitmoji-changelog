@@ -27928,6 +27928,11 @@ function getRunnerArch() {
 function isDebugging() {
     return process.env.RUNNER_DEBUG === '1';
 }
+function getBaseUrl() {
+    const baseDomain = process.env.GITHUB_SERVER_URL || 'https://github.com';
+    const repository = process.env.GITHUB_REPOSITORY || 'Templum/gitmoji-changelog';
+    return `${baseDomain}/${repository}`;
+}
 
 // EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
 var exec = __nccwpck_require__(1514);
@@ -27948,8 +27953,8 @@ async function getWholeHistory(workDir) {
                 const [long, short, message, name, email] = output.split('|||');
                 const historyEntry = {
                     hash: {
-                        long: long.startsWith('\n') ? long.replace('\n', '') : long,
-                        short: short.startsWith('\n') ? short.replace('\n', '') : short,
+                        long: long.startsWith('"') ? long.replace('"', '') : long,
+                        short: short.startsWith('"') ? short.replace('"', '') : short,
                     },
                     message,
                     author: {
@@ -28860,6 +28865,7 @@ function extractEmojiFromMessage(message) {
 
 
 
+
 function populateChangelog(history) {
     const map = new Map();
     map.set('Breaking Change', []);
@@ -28888,6 +28894,7 @@ function getCurrentDate() {
     return current.toISOString().split('T')[0];
 }
 function templateChangelog(changelog, version) {
+    const baseUrl = getBaseUrl();
     let template = `<a name="${version}"></a>\n## ${version} (${getCurrentDate()})\n\n`;
     for (const [type, commits] of changelog.entries()) {
         if (commits.length === 0) {
@@ -28895,7 +28902,7 @@ function templateChangelog(changelog, version) {
         }
         template += `### ${type}\n\n`;
         for (const current of commits) {
-            template += `- ${getEmoji(current.emoji)} ${current.message} [[${current.hash.short}](./commit/${current.hash.long})] (by ${current.author.name})\n`;
+            template += `- ${getEmoji(current.emoji)} ${current.message} [[${current.hash.short}](${baseUrl}/commit/${current.hash.long})] (by ${current.author.name})\n`;
         }
         template += '\n';
     }

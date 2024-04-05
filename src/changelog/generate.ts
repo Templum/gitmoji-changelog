@@ -5,6 +5,7 @@ import { ChangeType, getCategory } from '../gitmoji/mapping.js';
 import { extractEmojiFromMessage } from './extract.js';
 import { readFile, writeFile } from 'node:fs/promises';
 import { info, error as logError } from '@actions/core';
+import { getBaseUrl } from '../shared/environment.js';
 
 export type Entry = GitCommit & { emoji: string };
 
@@ -42,6 +43,7 @@ function getCurrentDate(): string {
 }
 
 function templateChangelog(changelog: Map<ChangeType, Entry[]>, version: string): string {
+    const baseUrl = getBaseUrl();
     let template = `<a name="${version}"></a>\n## ${version} (${getCurrentDate()})\n\n`;
 
     for (const [type, commits] of changelog.entries()) {
@@ -52,7 +54,7 @@ function templateChangelog(changelog: Map<ChangeType, Entry[]>, version: string)
         template += `### ${type}\n\n`;
 
         for (const current of commits) {
-            template += `- ${getEmoji(current.emoji)} ${current.message} [[${current.hash.short}](./commit/${current.hash.long})] (by ${current.author.name})\n`;
+            template += `- ${getEmoji(current.emoji)} ${current.message} [[${current.hash.short}](${baseUrl}/commit/${current.hash.long})] (by ${current.author.name})\n`;
         }
 
         template += '\n';

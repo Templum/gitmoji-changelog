@@ -8,6 +8,8 @@ declare global {
             RUNNER_ARCH: string | undefined;
             RUNNER_OS: string | undefined;
             RUNNER_DEBUG: '1' | undefined;
+            GITHUB_SERVER_URL: string | undefined;
+            GITHUB_REPOSITORY: string | undefined;
         }
     }
 }
@@ -26,4 +28,10 @@ export function getRunnerArch(): string {
 
 export function isDebugging(): boolean {
     return process.env.RUNNER_DEBUG === '1';
+}
+
+export function getBaseUrl(): string {
+    const baseDomain = process.env.GITHUB_SERVER_URL || 'https://github.com';
+    const repository = process.env.GITHUB_REPOSITORY || 'Templum/gitmoji-changelog';
+    return `${baseDomain}/${repository}`;
 }
