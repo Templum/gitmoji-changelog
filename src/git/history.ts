@@ -67,7 +67,7 @@ export async function getWholeHistory(workDir: string): Promise<GitCommit[]> {
 export async function getHistoryFrom(workDir: string, lastTag: string): Promise<GitCommit[]> {
     const history: GitCommit[] = [];
 
-    const git = spawn('git', ['log', lastTag, '--pretty=format:"%H|||%h|||%s|||%an|||%ae"'], {
+    const git = spawn('git', ['log', `${lastTag}..HEAD`, '--pretty=format:"%H|||%h|||%s|||%an|||%ae"'], {
         cwd: workDir === '' ? cwd() : workDir,
         shell: true,
         timeout: 20 * 1000,
@@ -124,8 +124,13 @@ export async function getTag(workDir: string, version: string): Promise<string |
     });
 
     git.stdout.on('data', (current: Buffer) => {
-        if (current.toString().includes(version)) {
-            foundTag = current.toString();
+        const tags = current.toString().split('\n');
+
+        for (const tag of tags) {
+            if (tag.includes(version)) {
+                foundTag = tag;
+                break;
+            }
         }
     });
 

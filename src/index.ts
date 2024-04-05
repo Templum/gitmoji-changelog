@@ -23,16 +23,23 @@ async function main() {
             throw new Error(`Was not able to discover a tag that is linked to ${version}, hence can't extend CHANGELOG`);
         }
 
-        const history = await getHistoryFrom(path, version);
+        const history = await getHistoryFrom(path, relatedTag);
+        if (history.length === 0) {
+            info(`Found no changes in history from ${relatedTag} -> HEAD`);
+            setOutput('for-version', 'No Changes');
+            return;
+        }
+
         const addition = generateChangelog(history, currentVersion);
         await writeChangelog(path, addition, false);
-    } else {
-        info('No Changelog present, will generate initial version');
-        const history = await getWholeHistory(path);
-        const initial = generateChangelog(history, currentVersion);
-        await writeChangelog(path, initial, true);
+        setOutput('for-version', currentVersion);
+        return;
     }
 
+    info('No Changelog present, will generate initial version');
+    const history = await getWholeHistory(path);
+    const initial = generateChangelog(history, currentVersion);
+    await writeChangelog(path, initial, true);
     setOutput('for-version', currentVersion);
 }
 
