@@ -27265,6 +27265,9 @@ function getEmojiName(emojiOrCode) {
 }
 function getEmoji(emojiName) {
     for (const current of gitmojis) {
+        if (emojiName.includes('_') && current.name === emojiName.replaceAll('_', '-')) {
+            return current.emoji;
+        }
         if (current.name === emojiName) {
             return current.emoji;
         }
@@ -27443,7 +27446,7 @@ function getCurrentDate() {
     return current.toISOString().split('T')[0];
 }
 function templateChangelog(changelog, version) {
-    let template = `<a name="2.3.0"></a>\n## ${version} (${getCurrentDate()})\n\n`;
+    let template = `<a name="${version}"></a>\n## ${version} (${getCurrentDate()})\n\n`;
     for (const [type, commits] of changelog.entries()) {
         if (commits.length === 0) {
             continue;

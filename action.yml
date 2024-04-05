@@ -1,0 +1,15 @@
+name: 'Gitmoji Changelog'
+description: 'Generates and updates Changelog based on git commits following Gitmoji Convention. Only does support Javascript/Node projects at the moment'
+author: 'Templum'
+
+runs:
+  using: 'node20'
+  main: './action/index.js'
+
+outputs:
+  for-version:
+    description: 'Version number for which the changelog was generated'
+
+branding:
+  icon: 'edit'
+  color: 'blue'
