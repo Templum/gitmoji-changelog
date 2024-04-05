@@ -23,7 +23,7 @@ async function main() {
             throw new Error(`Was not able to discover a tag that is linked to ${version}, hence can't extend CHANGELOG`);
         }
 
-        const history = await getHistoryFrom(path, version);
+        const history = await getHistoryFrom(path, relatedTag);
         const addition = generateChangelog(history, currentVersion);
         await writeChangelog(path, addition, false);
     } else {

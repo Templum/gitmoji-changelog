@@ -124,8 +124,13 @@ export async function getTag(workDir: string, version: string): Promise<string |
     });
 
     git.stdout.on('data', (current: Buffer) => {
-        if (current.toString().includes(version)) {
-            foundTag = current.toString();
+        const tags = current.toString().split('\n');
+
+        for (const tag of tags) {
+            if (tag.includes(version)) {
+                foundTag = tag;
+                break;
+            }
         }
     });
 
