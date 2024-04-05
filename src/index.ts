@@ -23,6 +23,7 @@ async function main() {
             throw new Error(`Was not able to discover a tag that is linked to ${version}, hence can't extend CHANGELOG`);
         }
 
+        info(`Based on version ${version} following Git TAG was identified ${relatedTag}`);
         const history = await getHistoryFrom(path, relatedTag);
         if (history.length === 0) {
             info(`Found no changes in history from ${relatedTag} -> HEAD`);
