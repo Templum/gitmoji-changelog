@@ -27953,8 +27953,8 @@ async function getWholeHistory(workDir) {
                 const [long, short, message, name, email] = output.split('|||');
                 const historyEntry = {
                     hash: {
-                        long: long.startsWith('"') ? long.replace('"', '') : long,
-                        short: short.startsWith('"') ? short.replace('"', '') : short,
+                        long: long.replaceAll('"', '').replaceAll('\n', ''),
+                        short: short.replaceAll('"', '').replaceAll('\n', ''),
                     },
                     message,
                     author: {
@@ -27986,8 +27986,8 @@ async function getHistoryFrom(workDir, lastTag) {
                 const [long, short, message, name, email] = output.split('|||');
                 const historyEntry = {
                     hash: {
-                        long: long.startsWith('\n') ? long.replace('\n', '') : long,
-                        short: short.startsWith('\n') ? short.replace('\n', '') : short,
+                        long: long.replaceAll('"', '').replaceAll('\n', ''),
+                        short: short.replaceAll('"', '').replaceAll('\n', ''),
                     },
                     message,
                     author: {
