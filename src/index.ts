@@ -24,15 +24,22 @@ async function main() {
         }
 
         const history = await getHistoryFrom(path, relatedTag);
+        if (history.length === 0) {
+            info(`Found no changes in history from ${relatedTag} -> HEAD`);
+            setOutput('for-version', 'No Changes');
+            return;
+        }
+
         const addition = generateChangelog(history, currentVersion);
         await writeChangelog(path, addition, false);
-    } else {
-        info('No Changelog present, will generate initial version');
-        const history = await getWholeHistory(path);
-        const initial = generateChangelog(history, currentVersion);
-        await writeChangelog(path, initial, true);
+        setOutput('for-version', currentVersion);
+        return;
     }
 
+    info('No Changelog present, will generate initial version');
+    const history = await getWholeHistory(path);
+    const initial = generateChangelog(history, currentVersion);
+    await writeChangelog(path, initial, true);
     setOutput('for-version', currentVersion);
 }
 
