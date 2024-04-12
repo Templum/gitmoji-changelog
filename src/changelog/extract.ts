@@ -3,9 +3,9 @@ import { join } from 'node:path';
 import { getEmojiName } from '../gitmoji/emojis.js';
 import { error as logError } from '@actions/core';
 
-export async function getLastChangelogVersion(path: string): Promise<string> {
+export async function getLastChangelogVersion(changelogPath: string): Promise<string> {
     try {
-        const existingChangelog = await readFile(join(path, 'CHANGELOG.md'), { encoding: 'utf-8' });
+        const existingChangelog = await readFile(changelogPath, { encoding: 'utf-8' });
         if (existingChangelog.length === 0) {
             return '';
         }

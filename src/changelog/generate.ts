@@ -1,11 +1,11 @@
-import { join } from 'node:path';
+import { readFile, writeFile } from 'node:fs/promises';
+import { info, error as logError } from '@actions/core';
 import { GitCommit } from '../git/history.js';
 import { getEmoji } from '../gitmoji/emojis.js';
 import { ChangeType, getCategory } from '../gitmoji/mapping.js';
 import { extractEmojiFromMessage } from './extract.js';
-import { readFile, writeFile } from 'node:fs/promises';
-import { info, error as logError } from '@actions/core';
 import { getBaseUrl } from '../shared/environment.js';
+import { Config } from '../shared/inputs.js';
 
 export type Entry = GitCommit & { emoji: string };
 
@@ -42,7 +42,7 @@ function getCurrentDate(): string {
     return current.toISOString().split('T')[0];
 }
 
-function templateChangelog(changelog: Map<ChangeType, Entry[]>, version: string): string {
+function templateChangelog(changelog: Map<ChangeType, Entry[]>, config: Config, version: string): string {
     const baseUrl = getBaseUrl();
     let template = `<a name="${version}"></a>\n## ${version} (${getCurrentDate()})\n\n`;
 
@@ -54,7 +54,7 @@ function templateChangelog(changelog: Map<ChangeType, Entry[]>, version: string)
         template += `### ${type}\n\n`;
 
         for (const current of commits) {
-            template += `- ${getEmoji(current.emoji)} ${current.message} [[${current.hash.short}](${baseUrl}/commit/${current.hash.long})] (by ${current.author.name})\n`;
+            template += `- ${getEmoji(current.emoji)} ${current.message} [[${current.hash.short}](${baseUrl}/commit/${current.hash.long})]${config.addAuthors ? ` (by ${current.author.name})` : ''}\n`;
         }
 
         template += '\n';
@@ -63,24 +63,23 @@ function templateChangelog(changelog: Map<ChangeType, Entry[]>, version: string)
     return template;
 }
 
-export function generateChangelog(history: GitCommit[], version: string): string {
+export function generateChangelog(history: GitCommit[], config: Config, version: string): string {
     const populatedChangelog = populateChangelog(history);
-    return templateChangelog(populatedChangelog, version);
+    return templateChangelog(populatedChangelog, config, version);
 }
 
-export async function writeChangelog(workdir: string, changelog: string, initial: boolean = false): Promise<void> {
+export async function writeChangelog(changelogPath: string, changelog: string, initial: boolean = false): Promise<void> {
     try {
-        const readmePath = join(workdir, 'CHANGELOG.md');
         if (initial) {
             const initialChangeLog = `# Changelog\n\n${changelog}`;
-            await writeFile(readmePath, initialChangeLog, { encoding: 'utf-8' });
-            info(`Successfully created initial Changelog @ ${readmePath}`);
+            await writeFile(changelogPath, initialChangeLog, { encoding: 'utf-8' });
+            info(`Successfully created initial Changelog @ ${changelogPath}`);
             return;
         }
-        const existingChangeLog = await readFile(readmePath, { encoding: 'utf-8' });
+        const existingChangeLog = await readFile(changelogPath, { encoding: 'utf-8' });
         const addedChangeLog = `# Changelog\n\n${changelog}${existingChangeLog.substring(existingChangeLog.indexOf('\n'))}`;
-        await writeFile(readmePath, addedChangeLog, { encoding: 'utf-8' });
-        info(`Successfully added to Changelog @ ${readmePath}`);
+        await writeFile(changelogPath, addedChangeLog, { encoding: 'utf-8' });
+        info(`Successfully added to Changelog @ ${changelogPath}`);
     } catch (error) {
         if (error instanceof Error) {
             logError(`Failed to write Changelog due to ${error.message}`);

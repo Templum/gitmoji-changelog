@@ -1,48 +1,48 @@
 import { setFailed, setOutput, info, debug, error as logError, warning } from '@actions/core';
-import { getRunnerArch, getRunnerOs, getWorkspace } from './shared/environment.js';
+import { getRunnerArch, getRunnerOs } from './shared/environment.js';
+import { getProjectRoot, getPathToChangeLog, getConfig } from './shared/inputs.js';
 import { getWholeHistory, getHistoryFrom, getTag } from './git/history.js';
 import { changelogPresent, hasToString } from './shared/predicates.js';
 import { generateChangelog, writeChangelog } from './changelog/generate.js';
 import { getLastChangelogVersion, getPackageVersion } from './changelog/extract.js';
 
 async function main() {
-    const workspace = getWorkspace();
+    const workspace = getProjectRoot();
     debug(`Running in ${workspace} on Runner with OS=${getRunnerOs()} Arch=${getRunnerArch()}`);
-
     const currentVersion = await getPackageVersion(workspace);
-    info(`Creating Changelog for ${currentVersion}`);
 
-    if (await changelogPresent(workspace)) {
-        debug('Detected existing Changelog and will extract last recorded version');
+    const pathToChangeLog = getPathToChangeLog();
+    info(`Creating Changelog for ${currentVersion} @ ${pathToChangeLog}`);
 
-        const version = await getLastChangelogVersion(workspace);
+    const config = getConfig();
+    debug(`Running Action with following config: ${JSON.stringify(config)}`);
+
+    let relatedTag: string | undefined = undefined;
+    if (await changelogPresent(pathToChangeLog)) {
+        const version = await getLastChangelogVersion(pathToChangeLog);
         info(`Last recorded version is ${version}`);
 
-        const relatedTag = await getTag(workspace, version);
+        relatedTag = await getTag(workspace, version);
         if (relatedTag === undefined) {
             warning(`No Tag available for ${version} either create a tag or delete the existing CHANGELOG to have a new one generated`);
             throw new Error(`Was not able to discover a tag that is linked to ${version}, hence can't extend CHANGELOG`);
         }
-
         info(`Based on version ${version} following Git TAG was identified ${relatedTag}`);
-        const history = await getHistoryFrom(workspace, relatedTag);
-        if (history.length === 0) {
-            info(`Found no changes in history from ${relatedTag} -> HEAD`);
-            setOutput('for-version', 'No Changes');
-            return;
-        }
+    }
 
-        const addition = generateChangelog(history, currentVersion);
-        await writeChangelog(workspace, addition, false);
-        setOutput('for-version', currentVersion);
+    const history = relatedTag === undefined ? await getWholeHistory(workspace) : await getHistoryFrom(workspace, relatedTag);
+    if (history.length === 0) {
+        info(`Found no changes in history from ${relatedTag} -> HEAD`);
+        setOutput('for-version', 'No Changes');
+        setOutput('changelog-path', pathToChangeLog);
         return;
     }
 
-    info('No Changelog present, will generate initial version');
-    const history = await getWholeHistory(workspace);
-    const initial = generateChangelog(history, currentVersion);
-    await writeChangelog(workspace, initial, true);
+    const changelog = generateChangelog(history, config, currentVersion);
+
+    await writeChangelog(pathToChangeLog, changelog, relatedTag === undefined);
     setOutput('for-version', currentVersion);
+    setOutput('changelog-path', pathToChangeLog);
 }
 
 main()
