@@ -7,7 +7,7 @@
   "scripts": {
     "pack": "ncc build ./src/index.ts --out action --license [name].licenses.txt",
     "build": "ncc build ./src/index.ts --out action --source-map",
-    "check:lint": "eslint ./lib",
+    "check:lint": "eslint ./src",
     "check:tsc": "tsc --noEmit",
     "test:unit": "jest --runInBand",
     "test:coverage": "jest --runInBand --coverage"

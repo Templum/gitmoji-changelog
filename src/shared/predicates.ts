@@ -1,6 +1,5 @@
 import { constants } from 'node:fs';
 import { access } from 'node:fs/promises';
-import { join } from 'node:path';
 
 export function hasToString(obj: unknown): obj is { toString: () => string } {
     if (obj === undefined || obj === null || typeof obj !== 'object') {
@@ -10,9 +9,9 @@ export function hasToString(obj: unknown): obj is { toString: () => string } {
     return 'toString' in obj && typeof obj.toString === 'function';
 }
 
-export async function changelogPresent(path: string): Promise<boolean> {
+export async function changelogPresent(changelogPath: string): Promise<boolean> {
     try {
-        await access(join(path, 'CHANGELOG.md'), constants.R_OK);
+        await access(changelogPath, constants.R_OK);
         return true;
     } catch (_error) {
         return false;

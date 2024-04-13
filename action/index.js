@@ -27934,6 +27934,48 @@ function getBaseUrl() {
     return `${baseDomain}/${repository}`;
 }
 
+;// CONCATENATED MODULE: external "node:path"
+const external_node_path_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:path");
+;// CONCATENATED MODULE: ./src/shared/inputs.ts
+
+
+
+function getProjectRoot() {
+    const entryPoint = getWorkspace();
+    try {
+        const relativeOverride = (0,core.getInput)('override-project-path', { required: false, trimWhitespace: true });
+        if (relativeOverride === '')
+            return entryPoint;
+        return (0,external_node_path_namespaceObject.join)(entryPoint, relativeOverride);
+    }
+    catch (_error) {
+        return entryPoint;
+    }
+}
+function getPathToChangeLog() {
+    const entryPoint = getWorkspace();
+    try {
+        const relativeOverride = (0,core.getInput)('override-changelog-path', { required: false, trimWhitespace: true });
+        if (relativeOverride === '')
+            return (0,external_node_path_namespaceObject.join)(entryPoint, 'CHANGELOG.md');
+        return (0,external_node_path_namespaceObject.join)(entryPoint, relativeOverride);
+    }
+    catch (_error) {
+        return (0,external_node_path_namespaceObject.join)(entryPoint, 'CHANGELOG.md');
+    }
+}
+function getConfig() {
+    try {
+        const addAuthors = (0,core.getBooleanInput)('add-authors', { required: false });
+        return {
+            addAuthors,
+        };
+    }
+    catch (_error) {
+        return { addAuthors: true };
+    }
+}
+
 // EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
 var exec = __nccwpck_require__(1514);
 ;// CONCATENATED MODULE: ./src/git/history.ts
@@ -28026,10 +28068,7 @@ async function getTag(workDir, version) {
 const external_node_fs_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs");
 ;// CONCATENATED MODULE: external "node:fs/promises"
 const promises_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs/promises");
-;// CONCATENATED MODULE: external "node:path"
-const external_node_path_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:path");
 ;// CONCATENATED MODULE: ./src/shared/predicates.ts
-
 
 
 function hasToString(obj) {
@@ -28038,9 +28077,9 @@ function hasToString(obj) {
     }
     return 'toString' in obj && typeof obj.toString === 'function';
 }
-async function changelogPresent(path) {
+async function changelogPresent(changelogPath) {
     try {
-        await (0,promises_namespaceObject.access)((0,external_node_path_namespaceObject.join)(path, 'CHANGELOG.md'), external_node_fs_namespaceObject.constants.R_OK);
+        await (0,promises_namespaceObject.access)(changelogPath, external_node_fs_namespaceObject.constants.R_OK);
         return true;
     }
     catch (_error) {
@@ -28811,9 +28850,9 @@ function getCategory(emojiName) {
 
 
 
-async function getLastChangelogVersion(path) {
+async function getLastChangelogVersion(changelogPath) {
     try {
-        const existingChangelog = await (0,promises_namespaceObject.readFile)((0,external_node_path_namespaceObject.join)(path, 'CHANGELOG.md'), { encoding: 'utf-8' });
+        const existingChangelog = await (0,promises_namespaceObject.readFile)(changelogPath, { encoding: 'utf-8' });
         if (existingChangelog.length === 0) {
             return '';
         }
@@ -28865,7 +28904,6 @@ function extractEmojiFromMessage(message) {
 
 
 
-
 function populateChangelog(history) {
     const map = new Map();
     map.set('Breaking Change', []);
@@ -28893,7 +28931,7 @@ function getCurrentDate() {
     current = new Date(current.getTime() - offset * 60 * 1000);
     return current.toISOString().split('T')[0];
 }
-function templateChangelog(changelog, version) {
+function templateChangelog(changelog, config, version) {
     const baseUrl = getBaseUrl();
     let template = `<a name="${version}"></a>\n## ${version} (${getCurrentDate()})\n\n`;
     for (const [type, commits] of changelog.entries()) {
@@ -28902,29 +28940,28 @@ function templateChangelog(changelog, version) {
         }
         template += `### ${type}\n\n`;
         for (const current of commits) {
-            template += `- ${getEmoji(current.emoji)} ${current.message} [[${current.hash.short}](${baseUrl}/commit/${current.hash.long})] (by ${current.author.name})\n`;
+            template += `- ${getEmoji(current.emoji)} ${current.message} [[${current.hash.short}](${baseUrl}/commit/${current.hash.long})]${config.addAuthors ? ` (by ${current.author.name})` : ''}\n`;
         }
         template += '\n';
     }
     return template;
 }
-function generateChangelog(history, version) {
+function generateChangelog(history, config, version) {
     const populatedChangelog = populateChangelog(history);
-    return templateChangelog(populatedChangelog, version);
+    return templateChangelog(populatedChangelog, config, version);
 }
-async function writeChangelog(workdir, changelog, initial = false) {
+async function writeChangelog(changelogPath, changelog, initial = false) {
     try {
-        const readmePath = (0,external_node_path_namespaceObject.join)(workdir, 'CHANGELOG.md');
         if (initial) {
             const initialChangeLog = `# Changelog\n\n${changelog}`;
-            await (0,promises_namespaceObject.writeFile)(readmePath, initialChangeLog, { encoding: 'utf-8' });
-            (0,core.info)(`Successfully created initial Changelog @ ${readmePath}`);
+            await (0,promises_namespaceObject.writeFile)(changelogPath, initialChangeLog, { encoding: 'utf-8' });
+            (0,core.info)(`Successfully created initial Changelog @ ${changelogPath}`);
             return;
         }
-        const existingChangeLog = await (0,promises_namespaceObject.readFile)(readmePath, { encoding: 'utf-8' });
+        const existingChangeLog = await (0,promises_namespaceObject.readFile)(changelogPath, { encoding: 'utf-8' });
         const addedChangeLog = `# Changelog\n\n${changelog}${existingChangeLog.substring(existingChangeLog.indexOf('\n'))}`;
-        await (0,promises_namespaceObject.writeFile)(readmePath, addedChangeLog, { encoding: 'utf-8' });
-        (0,core.info)(`Successfully added to Changelog @ ${readmePath}`);
+        await (0,promises_namespaceObject.writeFile)(changelogPath, addedChangeLog, { encoding: 'utf-8' });
+        (0,core.info)(`Successfully added to Changelog @ ${changelogPath}`);
     }
     catch (error) {
         if (error instanceof Error) {
@@ -28940,37 +28977,37 @@ async function writeChangelog(workdir, changelog, initial = false) {
 
 
 
+
 async function main() {
-    const workspace = getWorkspace();
+    const workspace = getProjectRoot();
     (0,core.debug)(`Running in ${workspace} on Runner with OS=${getRunnerOs()} Arch=${getRunnerArch()}`);
     const currentVersion = await getPackageVersion(workspace);
-    (0,core.info)(`Creating Changelog for ${currentVersion}`);
-    if (await changelogPresent(workspace)) {
-        (0,core.debug)('Detected existing Changelog and will extract last recorded version');
-        const version = await getLastChangelogVersion(workspace);
+    const pathToChangeLog = getPathToChangeLog();
+    (0,core.info)(`Creating Changelog for ${currentVersion} @ ${pathToChangeLog}`);
+    const config = getConfig();
+    (0,core.debug)(`Running Action with following config: ${JSON.stringify(config)}`);
+    let relatedTag = undefined;
+    if (await changelogPresent(pathToChangeLog)) {
+        const version = await getLastChangelogVersion(pathToChangeLog);
         (0,core.info)(`Last recorded version is ${version}`);
-        const relatedTag = await getTag(workspace, version);
+        relatedTag = await getTag(workspace, version);
         if (relatedTag === undefined) {
             (0,core.warning)(`No Tag available for ${version} either create a tag or delete the existing CHANGELOG to have a new one generated`);
             throw new Error(`Was not able to discover a tag that is linked to ${version}, hence can't extend CHANGELOG`);
         }
         (0,core.info)(`Based on version ${version} following Git TAG was identified ${relatedTag}`);
-        const history = await getHistoryFrom(workspace, relatedTag);
-        if (history.length === 0) {
-            (0,core.info)(`Found no changes in history from ${relatedTag} -> HEAD`);
-            (0,core.setOutput)('for-version', 'No Changes');
-            return;
-        }
-        const addition = generateChangelog(history, currentVersion);
-        await writeChangelog(workspace, addition, false);
-        (0,core.setOutput)('for-version', currentVersion);
+    }
+    const history = relatedTag === undefined ? await getWholeHistory(workspace) : await getHistoryFrom(workspace, relatedTag);
+    if (history.length === 0) {
+        (0,core.info)(`Found no changes in history from ${relatedTag} -> HEAD`);
+        (0,core.setOutput)('for-version', 'No Changes');
+        (0,core.setOutput)('changelog-path', pathToChangeLog);
         return;
     }
-    (0,core.info)('No Changelog present, will generate initial version');
-    const history = await getWholeHistory(workspace);
-    const initial = generateChangelog(history, currentVersion);
-    await writeChangelog(workspace, initial, true);
+    const changelog = generateChangelog(history, config, currentVersion);
+    await writeChangelog(pathToChangeLog, changelog, relatedTag === undefined);
     (0,core.setOutput)('for-version', currentVersion);
+    (0,core.setOutput)('changelog-path', pathToChangeLog);
 }
 main()
     .then(() => { })
