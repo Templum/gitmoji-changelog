@@ -1,4 +1,4 @@
-import { getBooleanInput, getInput } from '@actions/core';
+import { getInput } from '@actions/core';
 import { getWorkspace } from './environment.js';
 import { join } from 'node:path';
 
@@ -6,36 +6,38 @@ export type Config = { addAuthors: boolean };
 
 export function getProjectRoot(): string {
     const entryPoint = getWorkspace();
-    try {
-        const relativeOverride = getInput('override-project-path', { required: false, trimWhitespace: true });
+    const relativeOverride = getInput('override-project-path', { required: false, trimWhitespace: true });
 
-        if (relativeOverride === '') return entryPoint;
-        return join(entryPoint, relativeOverride);
-    } catch (_error) {
-        return entryPoint;
-    }
+    if (relativeOverride === '') return entryPoint;
+    return join(entryPoint, relativeOverride);
 }
 
 export function getPathToChangeLog(): string {
     const entryPoint = getWorkspace();
-    try {
-        const relativeOverride = getInput('override-changelog-path', { required: false, trimWhitespace: true });
+    const relativeOverride = getInput('override-changelog-path', { required: false, trimWhitespace: true });
 
-        if (relativeOverride === '') return join(entryPoint, 'CHANGELOG.md');
-        return join(entryPoint, relativeOverride);
-    } catch (_error) {
-        return join(entryPoint, 'CHANGELOG.md');
-    }
+    if (relativeOverride === '') return join(entryPoint, 'CHANGELOG.md');
+    return join(entryPoint, relativeOverride, 'CHANGELOG.md');
 }
 
 export function getConfig(): Config {
-    try {
-        const addAuthors = getBooleanInput('add-authors', { required: false });
+    const truthy = ['true', 'True', 'TRUE'];
+    const falsy = ['false', 'False', 'FALSE'];
 
-        return {
-            addAuthors,
-        };
-    } catch (_error) {
+    const rawValue = getInput('add-authors', { required: false, trimWhitespace: true });
+    if (rawValue === '') {
         return { addAuthors: true };
     }
+
+    let addAuthors: boolean = true;
+    if (truthy.includes(rawValue)) {
+        addAuthors = true;
+    }
+    if (falsy.includes(rawValue)) {
+        addAuthors = false;
+    }
+
+    return {
+        addAuthors,
+    };
 }
