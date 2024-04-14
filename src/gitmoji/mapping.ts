@@ -8,11 +8,11 @@ export type ChangeType = 'Added' | 'Removed' | 'Changed' | 'Fixed' | 'Security' 
 const MAPPING: Mapping[] = [
     {
         category: 'Added',
-        emojis: ['sparkles', 'tada', 'heavy_plus_sign', 'loud_sound'],
+        emojis: ['sparkles', 'tada', 'heavy-plus-sign', 'loud-sound'],
     },
     {
         category: 'Removed',
-        emojis: ['fire', 'heavy_minus_sign', 'mute', 'coffin'],
+        emojis: ['fire', 'heavy-minus-sign', 'mute', 'coffin'],
     },
     {
         category: 'Changed',
@@ -20,18 +20,18 @@ const MAPPING: Mapping[] = [
             'zap',
             'memo',
             'lipstick',
-            'arrow_up',
-            'arrow_down',
-            'chart_with_upwards_trend',
+            'arrow-up',
+            'arrow-down',
+            'chart-with-upwards-trend',
             'wrench',
             'hammer',
             'bento',
             'bulb',
-            'triangular_flag_on_post',
+            'triangular-flag-on-post',
             'necktie',
             'stethoscope',
             'thread',
-            'chart_with_upwards_trend',
+            'chart-with-upwards-trend',
         ],
     },
     {
@@ -40,11 +40,11 @@ const MAPPING: Mapping[] = [
     },
     {
         category: 'Fixed',
-        emojis: ['bug', 'ambulance', 'pencil2', 'adhesive_bandage'],
+        emojis: ['bug', 'ambulance', 'pencil2', 'adhesive-bandage'],
     },
     {
         category: 'Security',
-        emojis: ['lock', 'safety_vest', 'passport_control'],
+        emojis: ['lock', 'safety-vest', 'passport-control'],
     },
     {
         category: 'Deprecated',
@@ -52,18 +52,18 @@ const MAPPING: Mapping[] = [
     },
     {
         category: 'CI/CD',
-        emojis: ['rocket', 'green_heart', 'construction_worker', 'package'],
+        emojis: ['rocket', 'green-heart', 'construction-worker', 'package'],
     },
     {
         category: 'Miscellaneous',
         emojis: [
-            'closed_lock_with_key',
+            'closed-lock-with-key',
             'bookmark',
-            'globe_with_meridians',
-            'page_facing_up',
-            'busts_in_silhouette',
-            'see_no_evil',
-            'money_with_wings',
+            'globe-with-meridians',
+            'page-facing-up',
+            'busts-in-silhouette',
+            'see-no-evil',
+            'money-with-wings',
         ],
     },
 ];
