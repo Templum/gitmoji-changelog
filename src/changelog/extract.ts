@@ -50,7 +50,7 @@ function findEmoji(message: string): [start: number, end: number] {
 export function extractEmojiFromMessage(message: string): [emoji: string, message: string] {
     const [start, end] = findEmoji(message);
 
-    const emoji = start === 0 && end === 1 ? getEmojiName(message.substring(start, end)) : message.substring(start + 1, end);
+    const emoji = start === 0 && end === 1 ? getEmojiName(message.substring(start, end)) : getEmojiName(message.substring(start + 1, end));
     const cleanedMessage = message.substring(end + 1).trim();
 
     return [emoji, cleanedMessage];
