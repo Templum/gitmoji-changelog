@@ -2,7 +2,7 @@
 
 This action generates a `CHANGELOG` based on the git history using the [Gitmoji](https://gitmoji.dev/about) convention. If no CHANGELOG has been created yet, it will go ahead and create one based on the current version. Currently, only package.json is supported (feel free to request other tooling). If a `CHANGELOG.md` exists, it will append to it based on the commits between the last changelog entry and `HEAD`. This action will provide via outputs the place of the created/updated `CHANGELOG.md` so it can be committed or uploaded. For example, flows have a look at the [usage examples](#example-usage)
 
-> Please be aware that this expects you to create Tags for the versions that may be prefixed with 'v'. e.g. Version=1.0.0 => TAG=1.0.0 or TAG=v1.0.0
+> Please be aware that this expects you to create Tags for the versions that may be prefixed with 'v' or 'V'. e.g. Version=1.0.0 => TAG=1.0.0 or TAG=v1.0.0 or TAG=V1.0.0
 
 ## Inputs
 
