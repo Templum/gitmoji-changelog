@@ -27942,38 +27942,35 @@ const external_node_path_namespaceObject = __WEBPACK_EXTERNAL_createRequire(impo
 
 function getProjectRoot() {
     const entryPoint = getWorkspace();
-    try {
-        const relativeOverride = (0,core.getInput)('override-project-path', { required: false, trimWhitespace: true });
-        if (relativeOverride === '')
-            return entryPoint;
-        return (0,external_node_path_namespaceObject.join)(entryPoint, relativeOverride);
-    }
-    catch (_error) {
+    const relativeOverride = (0,core.getInput)('override-project-path', { required: false, trimWhitespace: true });
+    if (relativeOverride === '')
         return entryPoint;
-    }
+    return (0,external_node_path_namespaceObject.join)(entryPoint, relativeOverride);
 }
 function getPathToChangeLog() {
     const entryPoint = getWorkspace();
-    try {
-        const relativeOverride = (0,core.getInput)('override-changelog-path', { required: false, trimWhitespace: true });
-        if (relativeOverride === '')
-            return (0,external_node_path_namespaceObject.join)(entryPoint, 'CHANGELOG.md');
-        return (0,external_node_path_namespaceObject.join)(entryPoint, relativeOverride);
-    }
-    catch (_error) {
+    const relativeOverride = (0,core.getInput)('override-changelog-path', { required: false, trimWhitespace: true });
+    if (relativeOverride === '')
         return (0,external_node_path_namespaceObject.join)(entryPoint, 'CHANGELOG.md');
-    }
+    return (0,external_node_path_namespaceObject.join)(entryPoint, relativeOverride, 'CHANGELOG.md');
 }
 function getConfig() {
-    try {
-        const addAuthors = (0,core.getBooleanInput)('add-authors', { required: false });
-        return {
-            addAuthors,
-        };
-    }
-    catch (_error) {
+    const truthy = ['true', 'True', 'TRUE'];
+    const falsy = ['false', 'False', 'FALSE'];
+    const rawValue = (0,core.getInput)('add-authors', { required: false, trimWhitespace: true });
+    if (rawValue === '') {
         return { addAuthors: true };
     }
+    let addAuthors = true;
+    if (truthy.includes(rawValue)) {
+        addAuthors = true;
+    }
+    if (falsy.includes(rawValue)) {
+        addAuthors = false;
+    }
+    return {
+        addAuthors,
+    };
 }
 
 // EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
@@ -28007,9 +28004,6 @@ async function getWholeHistory(workDir) {
                 history.push(historyEntry);
                 (0,core.debug)(`Adding ${historyEntry.hash.short} to history`);
             }
-            else {
-                (0,core.warning)(`Received unexpected data ${output}`);
-            }
         }
         return history;
     }
@@ -28040,25 +28034,23 @@ async function getHistoryFrom(workDir, lastTag) {
                 history.push(historyEntry);
                 (0,core.debug)(`Adding ${historyEntry.hash.short} to history`);
             }
-            else {
-                (0,core.warning)(`Received unexpected data ${output}`);
-            }
         }
         return history;
     }
     throw new Error(stderr);
 }
 async function getTag(workDir, version) {
-    const { exitCode, stderr, stdout } = await (0,exec.getExecOutput)('git', ['tag', '-l'], {
+    const { exitCode, stderr, stdout } = await (0,exec.getExecOutput)('git', ['tag', '--sort=-v:refname', '-l'], {
         cwd: workDir,
         silent: !isDebugging(),
     });
     if (exitCode === 0) {
-        const potentialTag = stdout.split('\n').filter((current) => current.includes(version));
-        if (potentialTag.length > 1) {
-            (0,core.warning)(`Multiple Tags found that include ${version}: ${potentialTag.join(',')}, will choose ${potentialTag[0]}`);
-            return potentialTag[0];
-        }
+        const potentialTag = stdout.split('\n').filter((current) => {
+            if (current.toLowerCase().startsWith('v')) {
+                return current.substring(1) === version;
+            }
+            return current === version;
+        });
         return potentialTag.length === 1 ? potentialTag[0] : undefined;
     }
     throw new Error(stderr);
@@ -28741,9 +28733,18 @@ const gitmojis = gitmojisJson.gitmojis;
 
 ;// CONCATENATED MODULE: ./src/gitmoji/emojis.ts
 
+const VARIATION_SELECTOR = '%EF%B8%8F';
 function getEmojiName(emojiOrCode) {
     for (const current of gitmojis) {
-        if (current.code === emojiOrCode || current.emoji === emojiOrCode) {
+        if (current.code === emojiOrCode) {
+            return current.name;
+        }
+        const encodedInput = encodeURI(emojiOrCode);
+        const encodedCurrent = encodeURI(current.emoji);
+        if (encodedInput === encodedCurrent) {
+            return current.name;
+        }
+        if (encodedCurrent.startsWith(encodedInput) && encodedCurrent.endsWith(VARIATION_SELECTOR)) {
             return current.name;
         }
     }
@@ -28751,34 +28752,22 @@ function getEmojiName(emojiOrCode) {
 }
 function getEmoji(emojiName) {
     for (const current of gitmojis) {
-        if (emojiName.includes('_') && current.name === emojiName.replaceAll('_', '-')) {
-            return current.emoji;
-        }
         if (current.name === emojiName) {
             return current.emoji;
         }
     }
     return '';
 }
-function findEmoji(message) {
-    const firstIdx = message.indexOf(':', 0);
-    const secondIdx = message.indexOf(':', firstIdx + 1);
-    if (firstIdx === -1 || secondIdx === -1) {
-        // Look at first char
-        return getEmojiName(message.substring(0, 1));
-    }
-    return message.substring(firstIdx + 1, secondIdx);
-}
 
 ;// CONCATENATED MODULE: ./src/gitmoji/mapping.ts
 const MAPPING = [
     {
         category: 'Added',
-        emojis: ['sparkles', 'tada', 'heavy_plus_sign', 'loud_sound'],
+        emojis: ['sparkles', 'tada', 'heavy-plus-sign', 'loud-sound'],
     },
     {
         category: 'Removed',
-        emojis: ['fire', 'heavy_minus_sign', 'mute', 'coffin'],
+        emojis: ['fire', 'heavy-minus-sign', 'mute', 'coffin'],
     },
     {
         category: 'Changed',
@@ -28786,18 +28775,18 @@ const MAPPING = [
             'zap',
             'memo',
             'lipstick',
-            'arrow_up',
-            'arrow_down',
-            'chart_with_upwards_trend',
+            'arrow-up',
+            'arrow-down',
+            'chart-with-upwards-trend',
             'wrench',
             'hammer',
             'bento',
             'bulb',
-            'triangular_flag_on_post',
+            'triangular-flag-on-post',
             'necktie',
             'stethoscope',
             'thread',
-            'chart_with_upwards_trend',
+            'chart-with-upwards-trend',
         ],
     },
     {
@@ -28806,11 +28795,11 @@ const MAPPING = [
     },
     {
         category: 'Fixed',
-        emojis: ['bug', 'ambulance', 'pencil2', 'adhesive_bandage'],
+        emojis: ['bug', 'ambulance', 'pencil2', 'adhesive-bandage'],
     },
     {
         category: 'Security',
-        emojis: ['lock', 'safety_vest', 'passport_control'],
+        emojis: ['lock', 'safety-vest', 'passport-control'],
     },
     {
         category: 'Deprecated',
@@ -28818,18 +28807,18 @@ const MAPPING = [
     },
     {
         category: 'CI/CD',
-        emojis: ['rocket', 'green_heart', 'construction_worker', 'package'],
+        emojis: ['rocket', 'green-heart', 'construction-worker', 'package'],
     },
     {
         category: 'Miscellaneous',
         emojis: [
-            'closed_lock_with_key',
+            'closed-lock-with-key',
             'bookmark',
-            'globe_with_meridians',
-            'page_facing_up',
-            'busts_in_silhouette',
-            'see_no_evil',
-            'money_with_wings',
+            'globe-with-meridians',
+            'page-facing-up',
+            'busts-in-silhouette',
+            'see-no-evil',
+            'money-with-wings',
         ],
     },
 ];
@@ -28858,6 +28847,9 @@ async function getLastChangelogVersion(changelogPath) {
         }
         const anchorStart = existingChangelog.indexOf('<a', 0);
         const anchorEnd = existingChangelog.indexOf('a>', anchorStart + 2);
+        if (anchorStart == -1 || anchorEnd == -1) {
+            return '';
+        }
         const latestVersionAnchor = existingChangelog.substring(anchorStart, anchorEnd);
         const startVersion = latestVersionAnchor.indexOf('"', 0);
         const endVersion = latestVersionAnchor.indexOf('"', startVersion + 1);
@@ -28881,18 +28873,21 @@ async function getPackageVersion(path) {
         throw error;
     }
 }
-function extract_findEmoji(message) {
+function findEmoji(message) {
     const firstIdx = message.indexOf(':', 0);
     const secondIdx = message.indexOf(':', firstIdx + 1);
     if (firstIdx === -1 || secondIdx === -1) {
+        if (!message.substring(0, 1).isWellFormed() && message.substring(0, 2).isWellFormed()) {
+            return [0, 2];
+        }
         // Default to first char
         return [0, 1];
     }
     return [firstIdx, secondIdx];
 }
 function extractEmojiFromMessage(message) {
-    const [start, end] = extract_findEmoji(message);
-    const emoji = start === 0 && end === 1 ? getEmojiName(message.substring(start, end)) : message.substring(start + 1, end);
+    const [start, end] = findEmoji(message);
+    const emoji = start === 0 && end <= 2 ? getEmojiName(message.substring(start, end)) : getEmojiName(message.substring(start, end + 1));
     const cleanedMessage = message.substring(end + 1).trim();
     return [emoji, cleanedMessage];
 }
