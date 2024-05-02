@@ -20,8 +20,16 @@ describe('Git Emojis', () => {
                 expected: 'arrow-up',
             },
             {
+                input: '⚡️',
+                expected: 'zap',
+            },
+            {
                 input: 'fix:',
                 expected: '',
+            },
+            {
+                input: '🔐',
+                expected: 'closed-lock-with-key',
             },
         ])('getEmojiName should return "$expected" for "$input"', ({ input, expected }) => {
             const received = getEmojiName(input);
