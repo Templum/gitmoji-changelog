@@ -10,7 +10,7 @@ This action generates a `CHANGELOG` based on the git history using the [Gitmoji]
 | ----------------------- | -------- | ------- | ----------------------------------------------------------- |
 | add-authors             | false    | 'true'    | This determines whether the Authors of the Commits should be added to the changelog. It should be a valid YAML boolean value (e.g. TRUE, FALSE, true, false).                            |
 | override-project-path   | false    | ''      | This can be used to provide a relative path to the project root that should be used to collect history. Should not start with ".".                                                       |
-| override-changelog-path | false    | ''      | This can be used to provide a relative path to the project root that should be useda to store the CHANGELOG. Should end on "CHANGELOG.md" and not start wtih ".". |
+| override-changelog-path | false    | ''      | This can be used to provide a relative path to the project root where the CHANGELOG should be stored. It should end on "CHANGELOG.md" and not start with ".". |
 
 ## Outputs
 
