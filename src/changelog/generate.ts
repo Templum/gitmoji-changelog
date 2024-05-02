@@ -54,7 +54,7 @@ function templateChangelog(changelog: Map<ChangeType, Entry[]>, config: Config, 
         template += `### ${type}\n\n`;
 
         for (const current of commits) {
-            template += `- ${getEmoji(current.emoji.includes('_') ? current.emoji.replaceAll('_', '-') : current.emoji)} ${current.message} [[${current.hash.short}](${baseUrl}/commit/${current.hash.long})]${config.addAuthors ? ` (by ${current.author.name})` : ''}\n`;
+            template += `- ${getEmoji(current.emoji)} ${current.message} [[${current.hash.short}](${baseUrl}/commit/${current.hash.long})]${config.addAuthors ? ` (by ${current.author.name})` : ''}\n`;
         }
 
         template += '\n';
