@@ -1,6 +1,6 @@
 {
   "name": "gitmoji-changelog",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "tooling for generating a changelog file based on a history of gitmoji commits",
   "main": "index.js",
   "type": "module",
