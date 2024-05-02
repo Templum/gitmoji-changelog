@@ -15,7 +15,7 @@ inputs:
     description: 'This can be used to provide a relative path to the project root that should be used to collect history. Should not start with ".".'
   override-changelog-path:
     default: ''
-    description: 'This can be used to provide a relative path to the project root where the CHANGELOG should be stored. It should end on "CHANGELOG.md" and not start with ".".
+    description: 'This can be used to provide a relative path to the project root where the CHANGELOG should be stored. It should end on "CHANGELOG.md" and not start with ".".'
 
 outputs:
   for-version:
