@@ -1,3 +1,4 @@
+import { cwd } from 'node:process';
 import { getBaseUrl, getRunnerArch, getRunnerOs, getWorkspace, isDebugging } from '../../src/shared/environment.js';
 
 describe('Environment', () => {
@@ -57,7 +58,7 @@ describe('Environment', () => {
             {
                 method: getWorkspace,
                 name: 'getWorkspace',
-                default: '/workspaces/gitmoji-changelog',
+                default: cwd(),
             },
             {
                 method: getRunnerOs,
