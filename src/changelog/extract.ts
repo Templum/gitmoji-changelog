@@ -12,6 +12,9 @@ export async function getLastChangelogVersion(changelogPath: string): Promise<st
 
         const anchorStart = existingChangelog.indexOf('<a', 0);
         const anchorEnd = existingChangelog.indexOf('a>', anchorStart + 2);
+        if (anchorStart == -1 || anchorEnd == -1) {
+            return '';
+        }
 
         const latestVersionAnchor = existingChangelog.substring(anchorStart, anchorEnd);
         const startVersion = latestVersionAnchor.indexOf('"', 0);
@@ -35,11 +38,17 @@ export async function getPackageVersion(path: string): Promise<string> {
     }
 }
 
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/isWellFormed
+type FutureString = string & { isWellFormed: () => boolean };
+
 function findEmoji(message: string): [start: number, end: number] {
     const firstIdx = message.indexOf(':', 0);
     const secondIdx = message.indexOf(':', firstIdx + 1);
 
     if (firstIdx === -1 || secondIdx === -1) {
+        if (!(message.substring(0, 1) as FutureString).isWellFormed() && (message.substring(0, 2) as FutureString).isWellFormed()) {
+            return [0, 2];
+        }
         // Default to first char
         return [0, 1];
     }
@@ -50,7 +59,7 @@ function findEmoji(message: string): [start: number, end: number] {
 export function extractEmojiFromMessage(message: string): [emoji: string, message: string] {
     const [start, end] = findEmoji(message);
 
-    const emoji = start === 0 && end === 1 ? getEmojiName(message.substring(start, end)) : getEmojiName(message.substring(start + 1, end));
+    const emoji = start === 0 && end <= 2 ? getEmojiName(message.substring(start, end)) : getEmojiName(message.substring(start, end + 1));
     const cleanedMessage = message.substring(end + 1).trim();
 
     return [emoji, cleanedMessage];
