@@ -18,5 +18,6 @@ jobs:
             CHANGELOG.md
             LICENSE
           fail_on_unmatched_files: true
+          token: ${{ secrets.GH_TOKEN }}
       - name: Maintain SEMVER Tags
         uses: vweevers/additional-tags-action@v2
