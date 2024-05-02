@@ -1,0 +1,22 @@
+name: Release Flow
+on:
+  push: # Only trigger for tags with format v****
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            CHANGELOG.md
+            LICENSE
+          fail_on_unmatched_files: true
+      - name: Maintain SEMVER Tags
+        uses: vweevers/additional-tags-action@v2
