@@ -1,4 +1,4 @@
-import { debug, warning } from '@actions/core';
+import { debug } from '@actions/core';
 import { getExecOutput } from '@actions/exec';
 import { isDebugging } from '../shared/environment.js';
 
@@ -43,8 +43,6 @@ export async function getWholeHistory(workDir: string): Promise<GitCommit[]> {
 
                 history.push(historyEntry);
                 debug(`Adding ${historyEntry.hash.short} to history`);
-            } else {
-                warning(`Received unexpected data ${output}`);
             }
         }
 
@@ -83,8 +81,6 @@ export async function getHistoryFrom(workDir: string, lastTag: string): Promise<
 
                 history.push(historyEntry);
                 debug(`Adding ${historyEntry.hash.short} to history`);
-            } else {
-                warning(`Received unexpected data ${output}`);
             }
         }
 
@@ -95,17 +91,18 @@ export async function getHistoryFrom(workDir: string, lastTag: string): Promise<
 }
 
 export async function getTag(workDir: string, version: string): Promise<string | undefined> {
-    const { exitCode, stderr, stdout } = await getExecOutput('git', ['tag', '-l'], {
+    const { exitCode, stderr, stdout } = await getExecOutput('git', ['tag', '--sort=-v:refname', '-l'], {
         cwd: workDir,
         silent: !isDebugging(),
     });
 
     if (exitCode === 0) {
-        const potentialTag = stdout.split('\n').filter((current) => current.includes(version));
-        if (potentialTag.length > 1) {
-            warning(`Multiple Tags found that include ${version}: ${potentialTag.join(',')}, will choose ${potentialTag[0]}`);
-            return potentialTag[0];
-        }
+        const potentialTag = stdout.split('\n').filter((current) => {
+            if (current.toLowerCase().startsWith('v')) {
+                return current.substring(1) === version;
+            }
+            return current === version;
+        });
 
         return potentialTag.length === 1 ? potentialTag[0] : undefined;
     }

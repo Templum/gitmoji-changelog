@@ -17,11 +17,11 @@
                 "dbaeumer.vscode-eslint",
                 "Gruntfuggly.todo-tree",
                 "rvest.vs-code-prettier-eslint",
-                "kavod-io.vscode-jest-test-adapter",
                 "ms-vscode.test-adapter-converter",
                 "hbenl.vscode-test-explorer",
                 "pflannery.vscode-versionlens",
-                "me-dutour-mathieu.vscode-github-actions"
+                "me-dutour-mathieu.vscode-github-actions",
+                "Orta.vscode-jest"
             ]
         }
     }

@@ -1,8 +1,21 @@
 import { gitmojis } from 'gitmojis';
 
+const VARIATION_SELECTOR = '%EF%B8%8F';
+
 export function getEmojiName(emojiOrCode: string): string {
     for (const current of gitmojis) {
-        if (current.code === emojiOrCode || current.emoji === emojiOrCode) {
+        if (current.code === emojiOrCode) {
+            return current.name;
+        }
+
+        const encodedInput = encodeURI(emojiOrCode);
+        const encodedCurrent = encodeURI(current.emoji);
+
+        if (encodedInput === encodedCurrent) {
+            return current.name;
+        }
+
+        if (encodedCurrent.startsWith(encodedInput) && encodedCurrent.endsWith(VARIATION_SELECTOR)) {
             return current.name;
         }
     }
@@ -12,26 +25,10 @@ export function getEmojiName(emojiOrCode: string): string {
 
 export function getEmoji(emojiName: string): string {
     for (const current of gitmojis) {
-        if (emojiName.includes('_') && current.name === emojiName.replaceAll('_', '-')) {
-            return current.emoji;
-        }
-
         if (current.name === emojiName) {
             return current.emoji;
         }
     }
 
     return '';
-}
-
-export function findEmoji(message: string): string {
-    const firstIdx = message.indexOf(':', 0);
-    const secondIdx = message.indexOf(':', firstIdx + 1);
-
-    if (firstIdx === -1 || secondIdx === -1) {
-        // Look at first char
-        return getEmojiName(message.substring(0, 1));
-    }
-
-    return message.substring(firstIdx + 1, secondIdx);
 }
