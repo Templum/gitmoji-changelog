@@ -20,6 +20,6 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
-          branch: feature/changelog-update
+          branch: maintain/action-update
           title: ":package: Updated compiled action with latest code"
           commit-message: ":package: Updated compiled action with latest code"
