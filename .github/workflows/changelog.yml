@@ -16,6 +16,6 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
-          branch: feature/changelog-update
+          branch: maintain/changelog-update
           title: ":memo: Update Changelog for ${{ steps.outputs.for-version }}"
           commit-message: ":memo: Update Changelog for ${{ steps.outputs.for-version }}"
