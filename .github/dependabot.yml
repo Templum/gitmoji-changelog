@@ -1,0 +1,27 @@
+version: 2
+updates:
+  - package-ecosystem: "devcontainers"
+    directory: "/"
+    schedule:
+      interval: weekly
+    labels:
+      - "dependencies"
+      - "devcontainer"
+    rebase-strategy: auto
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    rebase-strategy: auto
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: weekly
+    labels:
+      - "dependencies"
+      - "npm"
+    rebase-strategy: auto
+    open-pull-requests-limit: 5
