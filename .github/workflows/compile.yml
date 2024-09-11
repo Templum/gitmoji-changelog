@@ -18,7 +18,7 @@ jobs:
       - name: Compile Action
         run: npm run pack
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           branch: maintain/action-update
           title: ":package: Updated compiled action with latest code"
